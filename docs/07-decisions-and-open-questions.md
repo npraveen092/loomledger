@@ -11,7 +11,11 @@
 | D5 | **Audit and tracing core before the UI** (Phase 2 before Phase 4) | Proposed |
 | D6 | **Own thin executor**, not built on LangGraph; frameworks are for learning and comparison | Proposed |
 | D7 | The meta-agent orchestrator produces a **draft for user review**, never an autonomous orchestrator | Proposed |
-| D8 | Backend in **Python (FastAPI, Pydantic)**, frontend in **React + React Flow**, storage in **Postgres** | Proposed, awaiting confirmation |
+| D8 | Backend in **Python (FastAPI, Pydantic)**, frontend in **React + React Flow**, storage in **Postgres**. A Java/Quarkus core is the main alternative. | Proposed, awaiting confirmation |
+| D9 | **Own thin model adapters** (httpx + Pydantic); no LiteLLM dependency after the March 2026 PyPI compromise; hash-pinned lockfile | Proposed |
+| D10 | **Audit log is separate from telemetry**: own append-only hash-chained store is the source of truth; OpenTelemetry (GenAI conventions, still Development status) is exported alongside | Proposed |
+| D11 | **Durable execution deferred** past the MVP; design for idempotent steps and serializable state; DBOS is the first candidate | Proposed |
+| D12 | **PostgreSQL over MongoDB** for specs, runs and audit events (JSONB for flexible parts, relational tables for runs and costs, object storage for large payloads). Do not run both databases | Proposed |
 
 ## Open questions
 
@@ -22,4 +26,5 @@
 5. **Terminology:** call everything a "node" and reserve "agent" for LLM nodes with a tool loop?
 6. **Deployment:** local-first single user, or hosted service later?
 7. **License:** TBD.
-8. **Which providers for the MVP?** Suggested: two or three LLM providers, one local model, and one non-LLM (Jev) to prove the abstraction.
+8. **External anchoring for the audit chain:** how and where to publish periodic signed chain heads (for example object storage with retention locks), since no database alone makes logs tamper-evident.
+9. **Which providers for the MVP?** Suggested: two or three LLM providers, one local model, and one non-LLM (Jev) to prove the abstraction.

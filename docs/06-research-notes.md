@@ -51,6 +51,27 @@ RAM (unified memory) is what limits local models, not SSD size. M4 MacBooks go u
 - OpenAI's AgentKit includes a visual Agent Builder.
 - Google Vertex AI Agent Builder and Microsoft Copilot Studio cover the enterprise side.
 
+## Stack research (9 Oct 2026)
+
+**LiteLLM supply-chain incident.** In March 2026, PyPI versions 1.82.7 and 1.82.8 of LiteLLM were compromised with credential-stealing malware. Anyone who installed those versions should rotate provider keys. This is why loomledger uses its own thin adapters instead of LiteLLM. Alternatives people moved to include compiled gateways run as separate processes (Go-based Bifrost and GoModel, Rust-based TensorZero), managed gateways (OpenRouter, Cloudflare AI Gateway, Portkey, Kong AI Gateway) and small auditable libraries.
+
+**OpenTelemetry GenAI semantic conventions.** In June 2026 (v1.42.0, 12 June) they moved into a dedicated repository, `semantic-conventions-genai`. As of mid-2026 every GenAI span, metric, event and attribute is still in Development status, and none is Stable. Agent-related operations include `create_agent`, `invoke_agent`, `invoke_workflow`, `plan` and `execute_tool`, with attributes such as `gen_ai.agent.name` and `gen_ai.agent.id`; MCP conventions also exist. Use the names, but expect changes.
+
+**Durable execution.** Options: Temporal (the market leader, multi-language, self-hosted stateful clusters), DBOS (checkpoints steps to Postgres with no separate server, MIT-licensed; released DBOSify for Temporal Python on 20 July 2026 and reports a production-ready Java v1.0), Restate and Hatchet (lower-latency or Postgres-based alternatives), Inngest (event-driven). DBOS fits loomledger best because Postgres is already in the stack.
+
+**Jev API details.** Single endpoint `POST https://api.typesafe.ai/v1/systemone` with `{state, model, questions}`; question types `noul`, `choice` (2-255 options) and `score` (2-10 levels); answers carry probabilities and confidence; no rationale is returned; choice probabilities are relative to the supplied labels; a pinned version (for example `jev-1.13.0`) and a moving `jev-latest` alias both exist. Sources: https://docs.typesafe.ai/api, https://www.promptfoo.dev/docs/providers/typesafe/, https://opentweet.io/jev/choice-score-noul
+
+**PostgreSQL vs MongoDB.** Postgres gained documents via JSONB and Mongo gained multi-document transactions; what remains distinct is Mongo's native sharding and change streams versus Postgres's relational depth, constraints and SQL reporting. Postgres has no native change streams (LISTEN/NOTIFY or app-level events cover live views). For audit-style workloads, constraint and trigger support favours Postgres. Neither database alone makes an audit log tamper-evident. Sources: https://swyftstack.com/blog/mongodb-vs-postgresql, https://www.kunalganglani.com/blog/mongodb-vs-postgresql-2026, https://docs.nvidia.com/nvsentinel/components/postgre-sql-provider/
+
+Sources:
+- https://dev.to/kuldeep_paul/best-litellm-alternatives-for-production-ai-in-2026-f0a
+- https://getmaxim.ai/articles/top-litellm-alternatives-in-2026/
+- https://dev.to/s-bandy/litellm-alternative-the-best-options-for-2026-36f4
+- https://www.dash0.com/knowledge/opentelemetry-genai-semantic-conventions-explained
+- https://klu.ai/glossary/llm-session-tracing-opentelemetry
+- https://dev.to/mr_manushukla/durable-ai-agents-without-temporal-exactly-once-workflows-on-postgres-with-dbos-2026-5a6n
+- https://dev.to/yigit-konur/serverless-workflow-engines-40-tools-ranked-by-latency-cost-and-developer-experience-19h2
+
 ## Name check
 
 "patchbay" was considered and rejected: several existing GitHub projects already use it, including AI-related ones. Always check GitHub, PyPI, npm and domains before settling on a name.

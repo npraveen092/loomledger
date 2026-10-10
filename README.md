@@ -29,6 +29,7 @@ Visual agent builders already exist (Dify, Langflow, Flowise, n8n, OpenAI's Agen
 | [05 Learning roadmap](docs/05-learning-roadmap.md) | What to learn, in what order, including frameworks |
 | [06 Research notes](docs/06-research-notes.md) | Jev, local models, agent frameworks, competitor landscape, sources |
 | [07 Decisions and open questions](docs/07-decisions-and-open-questions.md) | Decision log and what is still undecided |
+| [08 Model layer](docs/08-model-layer.md) | Model contract, adapters, middleware, Jev adapter, testing |
 
 ## Roadmap at a glance
 

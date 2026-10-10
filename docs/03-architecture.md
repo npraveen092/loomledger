@@ -38,6 +38,8 @@ A non-LLM such as Jev is not an agent in the strict sense (no loop, cannot write
 
 ## Model contract (sketch)
 
+See [08 Model layer](08-model-layer.md) for the refined design (request kinds, capabilities, middleware, Jev adapter).
+
 ```python
 class ModelNode(Protocol):
     kind: str                     # "llm" | "classifier" | "embedding" | ...
@@ -100,14 +102,16 @@ Keep these in mind for every design decision:
 - **Weak or local models in agent loops:** warn or block bad pairings (e.g. a small local model assigned complex multi-tool planning).
 - **Neutral messages:** typed payloads between nodes; no raw histories.
 - **Operational differences:** token counting, rate limits and errors vary; build retries, timeouts and fallback models.
-- **Do not build the provider layer from scratch:** use an existing gateway (LiteLLM or any OpenAI-compatible endpoint) plus thin adapters for non-LLMs.
+- **Keep the provider layer thin and auditable.** Write small adapters (httpx + Pydantic) that implement the `ModelNode` contract. One OpenAI-compatible adapter covers OpenAI, Ollama, LM Studio and many others; add dedicated adapters for Anthropic, Gemini and non-LLMs such as Jev. Avoid LiteLLM as a dependency: PyPI releases 1.82.7 and 1.82.8 were compromised in March 2026 with credential-stealing malware, and a layer that sees every API key is a high-value target. If a gateway is wanted later, run it as a separate process, not as an in-process dependency.
 
 ## Proposed stack
 
 - **Backend:** Python (FastAPI, Pydantic, asyncio)
-- **Model access:** LiteLLM or OpenAI-compatible gateway, Ollama for local, custom adapter for Jev
+- **Model access:** own thin adapters (see above): OpenAI-compatible adapter (covers Ollama and LM Studio), provider adapters as needed, custom adapter for Jev
+- **Supply chain:** `uv` lockfile with hashes, pinned versions, few dependencies, dependency review before upgrades
 - **Storage:** Postgres (specs, runs, audit events)
-- **Tracing:** OpenTelemetry alongside the audit events
+- **Audit vs telemetry:** the audit log is its own append-only, hash-chained store and is the source of truth. OpenTelemetry traces are exported alongside it for observability, but are not relied on for audit because telemetry can be sampled or dropped. The OpenTelemetry GenAI conventions are still in Development status, so map to them without depending on them.
+- **Durable execution:** deferred past the MVP; design steps to be idempotent with serializable state. First candidate later: DBOS (runs on Postgres).
 - **Frontend:** React + TypeScript + React Flow
 - **Executor:** own thin executor rather than building on LangGraph, because orchestration and audit are the product and need full control of every step, retry and log
 
